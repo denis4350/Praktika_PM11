@@ -1,0 +1,210 @@
+﻿<Window x:Class="HranitelPro.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Авторизация" 
+        Height="813" 
+        Width="500"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <!-- Тень для карточки -->
+        <DropShadowEffect x:Key="CardShadow" BlurRadius="15" ShadowDepth="2" Opacity="0.15"/>
+
+        <!-- Стиль для кнопок способов авторизации -->
+        <Style x:Key="AuthButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="45"/>
+            <Setter Property="Margin" Value="0,8"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8"
+                                Padding="10">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <TextBlock x:Name="IconText" Text="{TemplateBinding Tag}" 
+                                           FontSize="16" Margin="0,0,10,0"/>
+                                <ContentPresenter HorizontalAlignment="Center" 
+                                                  VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Opacity" Value="0.8"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для текстовых полей -->
+        <Style TargetType="TextBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,5,0,15"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderBrush" Value="#DDD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#2196F3"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="PasswordBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,5,0,20"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="BorderBrush" Value="#DDD"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#2196F3"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для кнопки регистрации -->
+        <Style x:Key="RegisterButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#2196F3"/>
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8"
+                                BorderBrush="#2196F3"
+                                BorderThickness="1"
+                                Padding="10">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#F0F2F5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="160"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Верхний баннер с градиентом -->
+        <Border Grid.Row="0">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#2196F3" Offset="0"/>
+                    <GradientStop Color="#1976D2" Offset="0.5"/>
+                    <GradientStop Color="#0D47A1" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="🏢" FontSize="50" HorizontalAlignment="Center"/>
+                <TextBlock Text="ХранительПРО" 
+                           FontSize="24" 
+                           Foreground="White" 
+                           HorizontalAlignment="Center"
+                           FontWeight="Bold"
+                           Margin="0,10,0,5"/>
+                <TextBlock Text="Система оформления пропусков" 
+                           FontSize="12" 
+                           Foreground="#E0E0E0" 
+                           HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Карточка входа -->
+        <Border Grid.Row="1" 
+                Margin="35,20,35,30"
+                Background="White"
+                CornerRadius="15"
+                Padding="25"
+                Effect="{StaticResource CardShadow}">
+
+            <StackPanel>
+                <TextBlock Text="Авторизация" 
+                           FontSize="22" 
+                           FontWeight="Bold" 
+                           Foreground="#333"
+                           HorizontalAlignment="Center"
+                           Margin="0,0,0,25"/>
+
+                <!-- Поле Email -->
+                <TextBlock Text="📧 Электронная почта" 
+                           FontSize="12" 
+                           Foreground="#666"
+                           Margin="0,0,0,5"/>
+                <TextBox x:Name="EmailBox" />
+
+                <!-- Поле Пароль -->
+                <TextBlock Text="🔒 Пароль" 
+                           FontSize="12" 
+                           Foreground="#666"
+                           Margin="0,10,0,5"/>
+                <PasswordBox x:Name="PasswordBox"/>
+
+                <!-- Способ 1: SQL запрос -->
+                <Button Content="Вход (SQL запрос)" 
+                        Click="Login_Click"
+                        Background="#4CAF50"
+                        Style="{StaticResource AuthButtonStyle}"
+                        Tag="🔓"/>
+
+                <!-- Способ 2: Хранимая процедура -->
+                <Button Content="Вход (Хранимая процедура)" 
+                        Click="LoginProcedure_Click"
+                        Background="#FF9800"
+                        Style="{StaticResource AuthButtonStyle}"
+                        Tag="⚙️"/>
+
+                <!-- Способ 3: ORM (Entity Framework) -->
+                <Button Content="Вход (ORM)" 
+                        Click="LoginORM_Click"
+                        Background="#9C27B0"
+                        Style="{StaticResource AuthButtonStyle}"
+                        Tag="💾"/>
+
+                <!-- Разделитель -->
+                <Border Height="1" 
+                        Background="#E0E0E0" 
+                        Margin="0,20,0,15"/>
+
+                <!-- Кнопка регистрации -->
+                <Button Content="📝 Создать аккаунт" 
+                        Click="Register_Click"
+                        Style="{StaticResource RegisterButtonStyle}"/>
+
+                <!-- Индикатор способа входа -->
+                <TextBlock x:Name="StatusText" 
+                           Text="Выберите способ входа" 
+                           FontSize="11" 
+                           Foreground="#999"
+                           HorizontalAlignment="Center"
+                           Margin="0,15,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
