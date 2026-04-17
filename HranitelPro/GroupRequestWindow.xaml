@@ -6,83 +6,79 @@
         WindowStartupLocation="CenterScreen">
 
     <Grid Margin="20">
-        <ScrollViewer>
-            <StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-                <TextBlock Text="Оформление групповой заявки" 
-                           FontSize="20" 
-                           FontWeight="Bold" 
-                           Margin="0,0,0,20"
-                           HorizontalAlignment="Center"/>
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="#2196F3" Padding="10" CornerRadius="5" Margin="0,0,0,10">
+            <TextBlock Text="👥 Групповая заявка на посещение" 
+                       FontSize="18" FontWeight="Bold" Foreground="White"/>
+        </Border>
 
-                <!-- Основная информация -->
-                <GroupBox Header="Информация о посещении" Margin="0,5">
-                    <StackPanel Margin="10">
-                        <TextBlock Text="Дата начала"/>
-                        <DatePicker x:Name="StartDate" Margin="0,5"/>
-
-                        <TextBlock Text="Дата окончания" Margin="0,10,0,0"/>
-                        <DatePicker x:Name="EndDate" Margin="0,5"/>
-
-                        <TextBlock Text="Цель посещения" Margin="0,10,0,0"/>
-                        <TextBox x:Name="PurposeBox" Margin="0,5"/>
-
-                        <TextBlock Text="Подразделение" Margin="0,10,0,0"/>
-                        <TextBox x:Name="DepartmentBox" Margin="0,5"/>
-
-                        <TextBlock Text="ФИО сотрудника" Margin="0,10,0,0"/>
-                        <TextBox x:Name="EmployeeBox" Margin="0,5"/>
-                    </StackPanel>
-                </GroupBox>
-
-                <!-- Список посетителей -->
-                <GroupBox Header="Список посетителей" Margin="0,10">
-                    <StackPanel Margin="10">
-                        <DataGrid x:Name="VisitorsGrid" 
-                                  AutoGenerateColumns="False" 
-                                  Height="200" 
-                                  Margin="0,5">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Фамилия" Width="*" Binding="{Binding LastName}"/>
-                                <DataGridTextColumn Header="Имя" Width="*" Binding="{Binding FirstName}"/>
-                                <DataGridTextColumn Header="Отчество" Width="*" Binding="{Binding MiddleName}"/>
-                                <DataGridTextColumn Header="Телефон" Width="*" Binding="{Binding Phone}"/>
-                                <DataGridTextColumn Header="Email" Width="*" Binding="{Binding Email}"/>
-                                <DataGridTextColumn Header="Серия паспорта" Width="*" Binding="{Binding PassportSeries}"/>
-                                <DataGridTextColumn Header="Номер паспорта" Width="*" Binding="{Binding PassportNumber}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
-                            <Button Content="Добавить посетителя" 
-                                    Click="AddVisitor_Click" 
-                                    Width="150" 
-                                    Margin="5"/>
-                            <Button Content="Удалить выбранного" 
-                                    Click="RemoveVisitor_Click" 
-                                    Width="150" 
-                                    Margin="5"/>
-                        </StackPanel>
-                    </StackPanel>
-                </GroupBox>
-
-                <!-- Кнопки действий -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20">
-                    <Button Content="Отправить заявку" 
-                            Click="SubmitRequest_Click" 
-                            Width="150" 
-                            Height="40"
-                            Margin="10"
-                            Background="#4CAF50"
-                            Foreground="White"/>
-                    <Button Content="Назад" 
-                            Click="Back_Click" 
-                            Width="150" 
-                            Height="40"
-                            Margin="10"/>
-                </StackPanel>
-
+        <!-- Информация о группе -->
+        <Border Grid.Row="1" Background="#FFF3E0" Padding="10" CornerRadius="5" Margin="0,0,0,10">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="👥 Количество посетителей: " FontWeight="Bold"/>
+                <TextBlock x:Name="VisitorsCountText" Text="0" Foreground="#FF9800" FontWeight="Bold"/>
+                <TextBlock Text=" | Группа ID: " FontWeight="Bold" Margin="20,0,0,0"/>
+                <TextBlock x:Name="GroupIdText" Text="---" Foreground="#FF9800" FontWeight="Bold"/>
             </StackPanel>
-        </ScrollViewer>
+        </Border>
+
+        <!-- Основная информация -->
+        <GroupBox Header="📅 Информация о посещении" Grid.Row="2" Margin="0,5">
+            <StackPanel Margin="10">
+                <TextBlock Text="Дата начала *"/>
+                <DatePicker x:Name="StartDate" Margin="0,5"/>
+
+                <TextBlock Text="Дата окончания *" Margin="0,10,0,0"/>
+                <DatePicker x:Name="EndDate" Margin="0,5"/>
+
+                <TextBlock Text="Цель посещения *" Margin="0,10,0,0"/>
+                <TextBox x:Name="PurposeBox" Margin="0,5"/>
+
+                <TextBlock Text="Подразделение *" Margin="0,10,0,0"/>
+                <ComboBox x:Name="DepartmentCombo" Margin="0,5" SelectionChanged="DepartmentCombo_SelectionChanged"/>
+
+                <TextBlock Text="ФИО сотрудника *" Margin="0,10,0,0"/>
+                <ComboBox x:Name="EmployeeCombo" Margin="0,5" IsEnabled="False"/>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Список посетителей -->
+        <GroupBox Header="👤 Список посетителей" Grid.Row="3" Margin="0,5">
+            <StackPanel Margin="10">
+                <DataGrid x:Name="VisitorsGrid" 
+                          AutoGenerateColumns="False" 
+                          Height="200" 
+                          Margin="0,5">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Фамилия" Width="*" Binding="{Binding LastName}"/>
+                        <DataGridTextColumn Header="Имя" Width="*" Binding="{Binding FirstName}"/>
+                        <DataGridTextColumn Header="Отчество" Width="*" Binding="{Binding MiddleName}"/>
+                        <DataGridTextColumn Header="Телефон" Width="*" Binding="{Binding Phone}"/>
+                        <DataGridTextColumn Header="Email" Width="*" Binding="{Binding Email}"/>
+                        <DataGridTextColumn Header="Паспорт" Width="100" Binding="{Binding Passport}"/>
+                    </DataGrid.Columns>
+                </DataGrid>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10">
+                    <Button Content="➕ Добавить" Click="AddVisitor_Click" Width="100" Margin="5"/>
+                    <Button Content="✖ Удалить" Click="RemoveVisitor_Click" Width="100" Margin="5"/>
+                </StackPanel>
+            </StackPanel>
+        </GroupBox>
+
+        <!-- Кнопки -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,20">
+            <Button Content="📤 Отправить заявку" Click="SubmitRequest_Click" 
+                    Width="150" Height="40" Background="#4CAF50" Foreground="White" Margin="5"/>
+            <Button Content="◀ Назад" Click="Back_Click" 
+                    Width="100" Height="40" Background="#9E9E9E" Foreground="White" Margin="5"/>
+        </StackPanel>
     </Grid>
 </Window>

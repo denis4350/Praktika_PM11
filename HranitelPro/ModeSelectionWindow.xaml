@@ -1,0 +1,101 @@
+﻿<Window x:Class="HranitelPro.ModeSelectionWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ХранительПРО" 
+        Height="450" 
+        Width="650"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize">
+
+    <Window.Resources>
+        <Style x:Key="ModeButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="200"/>
+            <Setter Property="Width" Value="250"/>
+            <Setter Property="Margin" Value="15"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="15"
+                                BorderBrush="#DDD"
+                                BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.9"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="3"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid Background="#F0F2F5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="120"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="#2196F3" CornerRadius="0,0,20,20">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="🏢 ХранительПРО" 
+                           FontSize="28" 
+                           Foreground="White" 
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Система управления пропускным режимом" 
+                           FontSize="14" 
+                           Foreground="#E0E0E0" 
+                           HorizontalAlignment="Center"
+                           Margin="0,10,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Кнопки выбора режима -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+            <!-- Режим посетителя -->
+            <Button Style="{StaticResource ModeButtonStyle}" 
+                    Click="VisitorMode_Click">
+                <StackPanel>
+                    <TextBlock Text="👤" FontSize="64" Margin="0,20"/>
+                    <TextBlock Text="Режим посетителя" Foreground="#2196F3"/>
+                    <TextBlock Text="Оформление заявок" FontSize="12" Foreground="#666" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Режим сотрудника общего отдела -->
+            <Button Style="{StaticResource ModeButtonStyle}" 
+                    Click="EmployeeMode_Click">
+                <StackPanel>
+                    <TextBlock Text="🏢" FontSize="64" Margin="0,20"/>
+                    <TextBlock Text="Общий отдел" Foreground="#FF9800"/>
+                    <TextBlock Text="Проверка заявок" FontSize="12" Foreground="#666" Margin="0,10,0,0"/>
+                </StackPanel>
+            </Button>
+
+        </StackPanel>
+
+        <!-- Подвал -->
+        <TextBlock Grid.Row="1" 
+                   Text="© ХранительПРО - Система безопасности КИИ"
+                   FontSize="10" 
+                   Foreground="#999"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,15"/>
+    </Grid>
+</Window>

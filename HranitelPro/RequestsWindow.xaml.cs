@@ -7,13 +7,13 @@ namespace HranitelPro
 {
     public partial class RequestsWindow : Window
     {
-        private string connectionString = "Host=localhost;Port=5432;Database=hranitelpro;Username=postgres;Password=1;";
-        private int currentUserId;
+        private string _connectionString = "Host=localhost;Port=5432;Database=hranitelpro;Username=postgres;Password=1;";
+        private int _currentUserId;
 
         public RequestsWindow(int userId)
         {
             InitializeComponent();
-            currentUserId = userId;
+            _currentUserId = userId;
             LoadRequests();
         }
 
@@ -21,28 +21,42 @@ namespace HranitelPro
         {
             try
             {
-                var requests = new List<RequestViewModel>();
+                var requests = new List<MyRequestItem>();
 
-                using (var conn = new NpgsqlConnection(connectionString))
+                using (var conn = new NpgsqlConnection(_connectionString))
                 {
                     conn.Open();
+
                     string query = @"
-                        SELECT id, purpose, department, employee, 
-                               start_date, end_date, status,
-                               last_name, first_name, middle_name
+                        SELECT 
+                            id, 
+                            purpose, 
+                            department, 
+                            employee, 
+                            start_date, 
+                            end_date, 
+                            status,
+                            last_name, 
+                            first_name, 
+                            middle_name,
+                            created_at,
+                            CASE 
+                                WHEN group_id IS NOT NULL AND group_id > 0 THEN 'Групповая'
+                                ELSE 'Личная'
+                            END as request_type
                         FROM requests 
-                        WHERE user_id = @userId 
+                        WHERE user_id = @userId
                         ORDER BY created_at DESC";
 
                     using (var cmd = new NpgsqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@userId", currentUserId);
+                        cmd.Parameters.AddWithValue("@userId", _currentUserId);
 
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                var request = new RequestViewModel
+                                var request = new MyRequestItem
                                 {
                                     Id = reader.GetInt32(0),
                                     Purpose = reader.GetString(1),
@@ -51,12 +65,10 @@ namespace HranitelPro
                                     StartDate = reader.GetDateTime(4).ToShortDateString(),
                                     EndDate = reader.GetDateTime(5).ToShortDateString(),
                                     Status = reader.GetString(6),
-                                    VisitorName = $"{reader.GetString(7)} {reader.GetString(8)} {reader.GetString(9)}".Trim()
+                                    VisitorName = $"{reader.GetString(7)} {reader.GetString(8)} {reader.GetString(9)}".Trim(),
+                                    CreatedAt = reader.GetDateTime(10).ToShortDateString(),
+                                    Type = reader.GetString(11)
                                 };
-
-                                // Определяем тип заявки (есть поле group_id или нет)
-                                request.Type = "Личная";
-
                                 requests.Add(request);
                             }
                         }
@@ -67,17 +79,20 @@ namespace HranitelPro
 
                 if (requests.Count == 0)
                 {
-                    MessageBox.Show("У вас пока нет заявок", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("У вас пока нет заявок", "Информация",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка загрузки заявок: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"Ошибка загрузки заявок: {ex.Message}", "Ошибка",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
     }
 
-    public class RequestViewModel
+    // Внутренний класс для отображения заявок
+    public class MyRequestItem
     {
         public int Id { get; set; }
         public string Type { get; set; } = string.Empty;
@@ -88,5 +103,6 @@ namespace HranitelPro
         public string EndDate { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
         public string VisitorName { get; set; } = string.Empty;
+        public string CreatedAt { get; set; } = string.Empty;
     }
 }

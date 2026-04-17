@@ -10,21 +10,107 @@ namespace HranitelPro
         private int currentUserId;
         private string connectionString = "Host=localhost;Port=5432;Database=hranitelpro;Username=postgres;Password=1;";
         private ObservableCollection<Visitor> visitors = new ObservableCollection<Visitor>();
+        private int groupId;
 
         public GroupRequestWindow(int userId)
         {
             InitializeComponent();
             currentUserId = userId;
+
+            // Генерируем уникальный ID группы
+            groupId = new Random().Next(10000, 99999);
+            GroupIdText.Text = groupId.ToString();
+
             VisitorsGrid.ItemsSource = visitors;
+            visitors.CollectionChanged += (s, e) =>
+                VisitorsCountText.Text = visitors.Count.ToString();
+
+            LoadDepartments();
+            SetDefaultDates();
         }
 
+        private void SetDefaultDates()
+        {
+            StartDate.SelectedDate = DateTime.Now.AddDays(1);
+            EndDate.SelectedDate = DateTime.Now.AddDays(8);
+        }
+
+        private void LoadDepartments()
+        {
+            try
+            {
+                using (var conn = new NpgsqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT name FROM departments ORDER BY name";
+                    using (var cmd = new NpgsqlCommand(query, conn))
+                    {
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            var departments = new System.Collections.Generic.List<string>();
+                            while (reader.Read())
+                            {
+                                departments.Add(reader.GetString(0));
+                            }
+                            DepartmentCombo.ItemsSource = departments;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки подразделений: {ex.Message}");
+            }
+        }
+
+        private void DepartmentCombo_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (DepartmentCombo.SelectedItem != null)
+            {
+                LoadEmployees(DepartmentCombo.SelectedItem.ToString());
+            }
+        }
+
+        private void LoadEmployees(string department)
+        {
+            try
+            {
+                using (var conn = new NpgsqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = @"
+                        SELECT full_name FROM employees 
+                        WHERE department = @dept OR division = @dept";
+
+                    using (var cmd = new NpgsqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@dept", department);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            var employees = new System.Collections.Generic.List<string>();
+                            while (reader.Read())
+                            {
+                                employees.Add(reader.GetString(0));
+                            }
+                            EmployeeCombo.ItemsSource = employees;
+                            EmployeeCombo.IsEnabled = employees.Count > 0;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки сотрудников: {ex.Message}");
+            }
+        }
 
         private void AddVisitor_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new VisitorDialog();
-            if (dialog.ShowDialog() == true && dialog.Visitor != null) 
+            if (dialog.ShowDialog() == true && dialog.Visitor != null)
             {
                 visitors.Add(dialog.Visitor);
+                VisitorsCountText.Text = visitors.Count.ToString();
             }
         }
 
@@ -33,14 +119,40 @@ namespace HranitelPro
             if (VisitorsGrid.SelectedItem is Visitor selected)
             {
                 visitors.Remove(selected);
+                VisitorsCountText.Text = visitors.Count.ToString();
             }
         }
 
         private void SubmitRequest_Click(object sender, RoutedEventArgs e)
         {
+            // Проверка заполнения
             if (visitors.Count == 0)
             {
                 MessageBox.Show("Добавьте хотя бы одного посетителя");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(PurposeBox.Text))
+            {
+                MessageBox.Show("Введите цель посещения");
+                return;
+            }
+
+            if (DepartmentCombo.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите подразделение");
+                return;
+            }
+
+            if (EmployeeCombo.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите сотрудника");
+                return;
+            }
+
+            if (StartDate.SelectedDate == null || EndDate.SelectedDate == null)
+            {
+                MessageBox.Show("Выберите даты посещения");
                 return;
             }
 
@@ -56,35 +168,42 @@ namespace HranitelPro
                             INSERT INTO requests 
                             (purpose, department, employee, start_date, end_date, 
                              last_name, first_name, middle_name, phone, email, 
-                             passport_series, passport_number, user_id, created_at) 
+                             passport_series, passport_number, user_id, created_at,
+                             group_id, status) 
                             VALUES 
                             (@purpose, @department, @employee, @start, @end,
                              @lastName, @firstName, @middleName, @phone, @email,
-                             @passportSeries, @passportNumber, @userId, @createdAt)";
+                             @passportSeries, @passportNumber, @userId, @createdAt,
+                             @groupId, 'На проверке')";
 
                         using (var cmd = new NpgsqlCommand(query, conn))
                         {
                             cmd.Parameters.AddWithValue("@purpose", PurposeBox.Text);
-                            cmd.Parameters.AddWithValue("@department", DepartmentBox.Text);
-                            cmd.Parameters.AddWithValue("@employee", EmployeeBox.Text);
-                            cmd.Parameters.AddWithValue("@start", StartDate.SelectedDate ?? DateTime.Now);
-                            cmd.Parameters.AddWithValue("@end", EndDate.SelectedDate ?? DateTime.Now);
+                            cmd.Parameters.AddWithValue("@department", DepartmentCombo.SelectedItem.ToString());
+                            cmd.Parameters.AddWithValue("@employee", EmployeeCombo.SelectedItem.ToString());
+                            cmd.Parameters.AddWithValue("@start", StartDate.SelectedDate.Value);
+                            cmd.Parameters.AddWithValue("@end", EndDate.SelectedDate.Value);
                             cmd.Parameters.AddWithValue("@lastName", visitor.LastName);
                             cmd.Parameters.AddWithValue("@firstName", visitor.FirstName);
                             cmd.Parameters.AddWithValue("@middleName", visitor.MiddleName ?? "");
-                            cmd.Parameters.AddWithValue("@phone", visitor.Phone);
-                            cmd.Parameters.AddWithValue("@email", visitor.Email);
+                            cmd.Parameters.AddWithValue("@phone", visitor.Phone ?? "");
+                            cmd.Parameters.AddWithValue("@email", visitor.Email ?? "");
                             cmd.Parameters.AddWithValue("@passportSeries", visitor.PassportSeries);
                             cmd.Parameters.AddWithValue("@passportNumber", visitor.PassportNumber);
                             cmd.Parameters.AddWithValue("@userId", currentUserId);
                             cmd.Parameters.AddWithValue("@createdAt", DateTime.Now);
+                            cmd.Parameters.AddWithValue("@groupId", groupId);
 
                             cmd.ExecuteNonQuery();
                         }
                     }
                 }
 
-                MessageBox.Show($"Заявка для {visitors.Count} посетителей успешно отправлена!");
+                MessageBox.Show($"✅ Групповая заявка успешно отправлена!\n\n" +
+                               $"Группа ID: {groupId}\n" +
+                               $"Количество посетителей: {visitors.Count}\n" +
+                               $"Статус: На проверке");
+
                 this.Close();
             }
             catch (Exception ex)
@@ -108,5 +227,7 @@ namespace HranitelPro
         public string Email { get; set; } = string.Empty;
         public string PassportSeries { get; set; } = string.Empty;
         public string PassportNumber { get; set; } = string.Empty;
+
+        public string Passport => $"{PassportSeries} {PassportNumber}".Trim();
     }
 }
