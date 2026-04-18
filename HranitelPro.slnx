@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="HranitelPro.Department/HranitelPro.Department.csproj" Id="b2d365c1-9349-44e0-8242-210c6124e266" />
+  <Project Path="HranitelPro.Security/HranitelPro.Security.csproj" Id="05a7e42e-8edd-4314-a5c5-0df563e14b21" />
   <Project Path="HranitelPro/HranitelPro.csproj" />
 </Solution>

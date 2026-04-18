@@ -78,13 +78,14 @@ namespace HranitelPro
                 using (var conn = new NpgsqlConnection(connectionString))
                 {
                     conn.Open();
+                    // Исправленный запрос - используем section вместо department
                     string query = @"
-                        SELECT full_name FROM employees 
-                        WHERE department = @dept OR division = @dept";
+                SELECT full_name FROM employees 
+                WHERE section = @deptName";
 
                     using (var cmd = new NpgsqlCommand(query, conn))
                     {
-                        cmd.Parameters.AddWithValue("@dept", department);
+                        cmd.Parameters.AddWithValue("@deptName", department);
                         using (var reader = cmd.ExecuteReader())
                         {
                             var employees = new System.Collections.Generic.List<string>();
