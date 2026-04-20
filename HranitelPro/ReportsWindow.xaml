@@ -1,0 +1,119 @@
+﻿<Window x:Class="HranitelPro.ReportsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        Title="📊 Отчёты - Общий отдел" 
+        Height="650" 
+        Width="750"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <Border Grid.Row="0" Background="#FF9800" Padding="10" CornerRadius="5" Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock Text="📊 Формирование отчётов" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="Количество посещений с группировкой" FontSize="11" Foreground="#E0E0E0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Параметры отчёта (1.1) -->
+        <Border Grid.Row="1" Background="#F5F5F5" Padding="15" CornerRadius="5" Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock Text="1. Отчёт за период" FontSize="14" FontWeight="Bold" Margin="0,0,0,10" Foreground="#FF9800"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Период:" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="PeriodCombo" Grid.Row="0" Grid.Column="1" Width="120" Margin="0,5">
+                        <ComboBoxItem Content="День" IsSelected="True"/>
+                        <ComboBoxItem Content="Месяц"/>
+                        <ComboBoxItem Content="Год"/>
+                    </ComboBox>
+
+                    <TextBlock Text="Дата:" Grid.Row="0" Grid.Column="2" VerticalAlignment="Center"/>
+                    <DatePicker x:Name="ReportDatePicker" Grid.Row="0" Grid.Column="3" Width="130" Margin="0,5"/>
+
+                    <TextBlock Text="Группировка:" Grid.Row="1" Grid.Column="0" VerticalAlignment="Center" Margin="0,10,0,0"/>
+                    <ComboBox x:Name="GroupByCombo" Grid.Row="1" Grid.Column="1" Width="150" Margin="0,10,0,0">
+                        <ComboBoxItem Content="По подразделениям" IsSelected="True"/>
+                        <ComboBoxItem Content="По статусам"/>
+                        <ComboBoxItem Content="По типам заявок"/>
+                    </ComboBox>
+
+                    <Button x:Name="GenerateBtn" Grid.Row="2" Grid.Column="1" Content="📊 Сформировать отчёт" 
+                            Click="GenerateReport_Click" Width="160" Height="35" 
+                            Background="#4CAF50" Foreground="White" Margin="0,15,0,0"/>
+
+                    <Button x:Name="ExportBtn" Grid.Row="2" Grid.Column="3" Content="💾 Экспорт в PDF" 
+                            Click="ExportToPdf_Click" Width="130" Height="35" 
+                            Background="#2196F3" Foreground="White" Margin="0,15,0,0" IsEnabled="False"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Отчёт за 3 часа (Задание 2) -->
+        <Border Grid.Row="2" Background="#F5F5F5" Padding="15" CornerRadius="5" Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock Text="2. Отчёт за 3 часа" FontSize="14" FontWeight="Bold" Margin="0,0,0,10" Foreground="#673AB7"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Автоматически формируется каждые 3 часа (0:00, 3:00, 6:00, 9:00, 12:00, 15:00, 18:00, 21:00)" 
+                               Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" FontSize="11" Foreground="#666" Margin="0,-11,0,10"/>
+
+                    <Button x:Name="ThreeHourReportBtn" Grid.Column="0" Content="📄 Сформировать отчёт за 3 часа" 
+                            Click="GenerateThreeHourReport_Click" Height="35" 
+                            Background="#673AB7" Foreground="White" Margin="0,5,416,0" Grid.ColumnSpan="2"/>
+
+                    <TextBlock Text="PDF сохраняется в папку: Документы\Отчеты ТБ\ДД_ММ_ГГГГ\" Grid.Column="1" FontSize="10" Foreground="#888" VerticalAlignment="Center" Margin="279,0,0,0"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Таблица отчёта -->
+        <Border Grid.Row="3" Background="White" CornerRadius="5" Padding="5" BorderBrush="#DDD" BorderThickness="1">
+            <DataGrid x:Name="ReportGrid" AutoGenerateColumns="False" IsReadOnly="True" 
+                      AlternatingRowBackground="#F9F9F9" GridLinesVisibility="Horizontal">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Группа" Width="250" Binding="{Binding GroupName}" FontWeight="Bold"/>
+                    <DataGridTextColumn Header="Количество посещений" Width="150" Binding="{Binding Count}"/>
+                    <DataGridTextColumn Header="Доля (%)" Width="100" Binding="{Binding Percent}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Итоговая строка -->
+        <Border Grid.Row="4" Background="#E0E0E0" Padding="10" CornerRadius="5" Margin="0,15,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock x:Name="TotalText" Text="Всего: 0" FontSize="14" FontWeight="Bold"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
